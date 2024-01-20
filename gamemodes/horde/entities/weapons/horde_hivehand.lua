@@ -122,6 +122,7 @@ end
 
 function SWEP:Holster()
     self.RegenerationTimer = CurTime()
+    self.HolsterTime = Curtime()
     self.Idle = 0
     self.IdleTimer = CurTime()
     return true
@@ -208,11 +209,17 @@ end
 function SWEP:Reload()
 end
 
+
 function SWEP:Think()
     if self.RegenerationTimer <= CurTime() and self.Weapon:Ammo1() < self.Primary.MaxAmmo then
-        local timeDifference = CurTime() - self.DeployTime
-        local ammoToAdd = math.floor(timeDifference / 0.5)
-        self.Owner:SetAmmo( self.Weapon:Ammo1() + ammotoAdd, self.Primary.Ammo )
+        local timeDifference = CurTime() - self.HolsterTime
+        
+        if timeDifference >= 0.5 then
+            local ammoToAdd = math.floor(timeDifference / 0.35) * 2
+            self.Owner:SetAmmo(self.Weapon:Ammo1() + ammoToAdd, self.Primary.Ammo)
+        else
+            self.Owner:SetAmmo(self.Weapon:Ammo1() + 1, self.Primary.Ammo)
+        end
         self.RegenerationTimer = CurTime() + 0.5
     end
     if self.Idle == 0 and self.IdleTimer <= CurTime() then
