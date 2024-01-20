@@ -113,6 +113,7 @@ function SWEP:Deploy()
     self.Weapon:SendWeaponAnim( ACT_VM_DRAW )
     self:SetNextPrimaryFire( CurTime() + 0.5 )
     self:SetNextSecondaryFire( CurTime() + 0.5 )
+    self.DeployTime = Curtime()
     self.RegenerationTimer = CurTime() + 0.5
     self.Idle = 0
     self.IdleTimer = CurTime() + self.Owner:GetViewModel():SequenceDuration()
@@ -120,7 +121,7 @@ function SWEP:Deploy()
 end
 
 function SWEP:Holster()
-    self.RegenerationTimer = ( CurTime() + .35 ) -- Should Regen while holstered, at a faster rate than equipped.
+    self.RegenerationTimer = CurTime()
     self.Idle = 0
     self.IdleTimer = CurTime()
     return true
@@ -209,7 +210,9 @@ end
 
 function SWEP:Think()
     if self.RegenerationTimer <= CurTime() and self.Weapon:Ammo1() < self.Primary.MaxAmmo then
-        self.Owner:SetAmmo( self.Weapon:Ammo1() + 1, self.Primary.Ammo )
+        local timeDifference = CurTime() - self.DeployTime
+        local ammoToAdd = math.floor(timeDifference / 0.5)
+        self.Owner:SetAmmo( self.Weapon:Ammo1() + ammotoAdd, self.Primary.Ammo )
         self.RegenerationTimer = CurTime() + 0.5
     end
     if self.Idle == 0 and self.IdleTimer <= CurTime() then
